@@ -1,18 +1,29 @@
 name: Export LeetCode Submissions
 
 on:
-  workflow_dispatch:  # Manual trigger
+  workflow_dispatch:
 
 jobs:
-  leetcode-export:
+  export:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v2
 
-      - name: Run LeetCode Exporter
-        uses: shihyuho/leetcode-export-action@main
+      - name: Setup Python
+        uses: actions/setup-python@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          leetcode_session: ${{ secrets.LEETCODE_SESSION }}
-          leetcode_csrf_token: ${{ secrets.LEETCODE_CSRF_TOKEN }}
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          pip install leetcode
+
+      - name: Export LeetCode Problems
+        env:
+          LEETCODE_SESSION: ${{ secrets.LEETCODE_SESSION }}
+        run: |
+          mkdir -p leetcode_solutions
+          cd leetcode_solutions
+          leetcode user -l
+          leetcode list -q --ac > list.txt
