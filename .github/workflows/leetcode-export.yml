@@ -7,23 +7,25 @@ jobs:
   export:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repo
+      - name: Checkout repo
         uses: actions/checkout@v2
 
-      - name: Setup Python
-        uses: actions/setup-python@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
-          python-version: '3.x'
+          node-version: '18'
 
-      - name: Install dependencies
-        run: |
-          pip install leetcode
+      - name: Install leetcode-cli
+        run: npm install -g leetcode-cli
 
-      - name: Export LeetCode Problems
-        env:
-          LEETCODE_SESSION: ${{ secrets.LEETCODE_SESSION }}
+      - name: Configure LeetCode Session
+        run: leetcode user -l -s ${{ secrets.LEETCODE_SESSION }}
+
+      - name: Fetch all accepted problems
         run: |
-          mkdir -p leetcode_solutions
-          cd leetcode_solutions
-          leetcode user -l
-          leetcode list -q --ac > list.txt
+          mkdir -p submissions
+          cd submissions
+          leetcode list -q --ac > accepted.txt
+          for slug in $(cut -f3 -d',' accepted.txt | tail -n +2); do
+            leetcode show $slug -l python3 -g -o .
+          done
