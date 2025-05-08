@@ -1,4 +1,4 @@
-name: Export LeetCode Submissions
+name: Test LeetCode Export (Single Problem)
 
 on:
   workflow_dispatch:
@@ -19,32 +19,25 @@ jobs:
       - name: Install leetcode-cli
         run: npm install -g leetcode-cli
 
-      - name: Configure LeetCode Session
+      - name: Login to LeetCode
         run: leetcode user -l -s ${{ secrets.LEETCODE_SESSION }}
 
-      - name: Fetch all accepted problems
+      - name: Test export of 1 problem (reverse-linked-list)
         run: |
           mkdir -p submissions
-          cd submissions
-          leetcode list -q --ac > accepted.txt
-          count=0
-          for slug in $(cut -f3 -d',' accepted.txt | tail -n +2); do
-            echo "Fetching: $slug"
-            leetcode show $slug -l python3 -g -o . && count=$((count + 1)) || echo "❌ Failed: $slug"
-          done
-          echo "✅ Exported $count problem(s)."
-          echo "🗂 Listing saved files:"
-          ls -lh *.py || echo "⚠️ No .py files found."
+          leetcode show reverse-linked-list -l python3 -g -o submissions
+          echo "🗂 Saved files:"
+          ls -lh submissions
 
       - name: Configure Git
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Commit and Push Files
+      - name: Commit and Push
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git add submissions || echo "Nothing to add"
-          git commit -m "Add LeetCode submissions" || echo "Nothing to commit"
+          git commit -m "Add test export: reverse-linked-list" || echo "Nothing to commit"
           git push https://x-access-token:${TOKEN}@github.com/${{ github.repository }}.git HEAD:main
