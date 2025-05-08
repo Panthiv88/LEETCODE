@@ -6,6 +6,7 @@ on:
 jobs:
   export:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
@@ -27,7 +28,8 @@ jobs:
           cd submissions
           leetcode list -q --ac > accepted.txt
           for slug in $(cut -f3 -d',' accepted.txt | tail -n +2); do
-            leetcode show $slug -l python3 -g -o .
+            echo "Fetching: $slug"
+            leetcode show $slug -l python3 -g -o . || echo "Failed to fetch $slug"
           done
 
       - name: Configure Git
