@@ -29,3 +29,14 @@ jobs:
           for slug in $(cut -f3 -d',' accepted.txt | tail -n +2); do
             leetcode show $slug -l python3 -g -o .
           done
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit and Push Files
+        run: |
+          git add submissions
+          git commit -m "Add LeetCode submissions"
+          git push
