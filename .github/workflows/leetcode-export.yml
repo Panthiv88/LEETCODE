@@ -27,10 +27,14 @@ jobs:
           mkdir -p submissions
           cd submissions
           leetcode list -q --ac > accepted.txt
+          count=0
           for slug in $(cut -f3 -d',' accepted.txt | tail -n +2); do
             echo "Fetching: $slug"
-            leetcode show $slug -l python3 -g -o . || echo "Failed to fetch $slug"
+            leetcode show $slug -l python3 -g -o . && count=$((count + 1)) || echo "❌ Failed: $slug"
           done
+          echo "✅ Exported $count problem(s)."
+          echo "🗂 Listing saved files:"
+          ls -lh *.py || echo "⚠️ No .py files found."
 
       - name: Configure Git
         run: |
